@@ -32,7 +32,7 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
         recyclerView = findViewById(R.id.recycler)
         recyclerView.layoutManager = LinearLayoutManager(this)
         fakeData()
-        adapter = ListPhotoAdapter(photoList)
+        adapter = ListPhotoAdapter(photoList,this)
         recyclerView.adapter = this.adapter
 
     }
@@ -49,6 +49,6 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
     }
 
     override fun showItem(items: ArrayList<CuriosityPhoto>) {
-
+        recyclerView.adapter = ListPhotoAdapter(items,this)
     }
 }

@@ -22,5 +22,7 @@ class CuriosityPhoto{
     @Expose
     var sol = 0
 
-
+    @SerializedName("camera")
+    @Expose
+    var camera = Camera()
 }

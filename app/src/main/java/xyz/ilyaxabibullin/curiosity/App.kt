@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class App :Application(){
     companion object {
         lateinit var retrofit: Retrofit
-        const val baseUrl = "https://api.nasa.gov/"
+        const val baseUrl = "https://api.nasa.gov"
     }
 
     override fun onCreate() {

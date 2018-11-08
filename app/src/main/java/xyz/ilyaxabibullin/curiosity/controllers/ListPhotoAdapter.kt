@@ -1,17 +1,19 @@
 package xyz.ilyaxabibullin.curiosity.controllers
 
 
+import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import xyz.ilyaxabibullin.curiosity.R
 import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
 import xyz.ilyaxabibullin.curiosity.inflate
 
 
-class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>) :
+class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>,var context: Context) :
     RecyclerView.Adapter<ListPhotoAdapter.PhotoHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): PhotoHolder {
         val inflatedView = parent.inflate(R.layout.item)
@@ -24,7 +26,11 @@ class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>) :
 
     override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
         holder.date.text = photoList[position].earthDate
-
+        val link = photoList[position].imgSrc
+        Glide
+            .with(context)
+            .load(link)
+            .into(holder.photo)
     }
 
     inner class PhotoHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
