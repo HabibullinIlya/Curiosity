@@ -5,4 +5,6 @@ import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
 
 interface MvpMainView: MvpView {
     fun showItem(items: ArrayList<CuriosityPhoto>)
+
+
 }

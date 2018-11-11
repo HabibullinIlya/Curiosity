@@ -25,4 +25,8 @@ class CuriosityPhoto{
     @SerializedName("camera")
     @Expose
     var camera = Camera()
+
+    @SerializedName("total_photos")
+    @Expose
+    var totalPhotos = 0
 }

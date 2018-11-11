@@ -13,7 +13,7 @@ import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
 import xyz.ilyaxabibullin.curiosity.inflate
 
 
-class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>,var context: Context) :
+class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>) :
     RecyclerView.Adapter<ListPhotoAdapter.PhotoHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): PhotoHolder {
         val inflatedView = parent.inflate(R.layout.item)
@@ -28,7 +28,7 @@ class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>,var context: Con
         holder.date.text = photoList[position].earthDate
         val link = photoList[position].imgSrc
         Glide
-            .with(context)
+            .with(holder.itemView.context)
             .load(link)
             .into(holder.photo)
     }
@@ -38,4 +38,7 @@ class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>,var context: Con
         val photo: ImageView = itemView.findViewById(R.id.item_photo)
 
     }
+
+
+
 }
