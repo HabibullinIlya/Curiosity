@@ -1,42 +1,44 @@
 package xyz.ilyaxabibullin.curiosity.controllers
 
-import android.util.Log
+import android.annotation.SuppressLint
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import xyz.ilyaxabibullin.curiosity.App
+
 import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
-import xyz.ilyaxabibullin.curiosity.entitys.Photos
-import xyz.ilyaxabibullin.curiosity.network.NASAApi
+import xyz.ilyaxabibullin.curiosity.entitys.ManifestResponce
+
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 @InjectViewState
 class MainPresenter : MvpPresenter<MvpMainView>() {
 
+    var compositeDisposable = CompositeDisposable()
+    var page = 0
+
+    @SuppressLint("CheckResult")
     fun activityWasStarted() {
-        App.retrofit.create(NASAApi::class.java).getPhotos("2015-6-3",  "DEMO_KEY")
-            .enqueue(object : Callback<Photos> {
-                override fun onFailure(call: Call<Photos>, t: Throwable) {
-                    t.printStackTrace()
-                    Log.d("TAG", "sosi hui")
-                }
-
-                override fun onResponse(
-                    call: Call<Photos>,
-                    response: Response<Photos>
-                ) {
-                    if (response.isSuccessful) {
-                        for(i in response.body()!!.photos){
-                            Log.d("TAG", i.imgSrc)
-                        }
-
-                        viewState.showItem(response.body()!!.photos)
+        compositeDisposable.add(PhotoRepository.loadManifest()
+            .subscribeOn(Schedulers.io())
+            .subscribe{
+                PhotoRepository.loadPhotos(it.manifest
+                    .photos[it.manifest.photos.size-1].earthDate)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe{
+                        viewState.showItem(it.photos)
                     }
-
-                }
-
-            })
+            }
+        )
     }
+
+
 }

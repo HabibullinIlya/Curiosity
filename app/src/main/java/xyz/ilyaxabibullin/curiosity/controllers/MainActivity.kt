@@ -39,13 +39,7 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
 
     private fun fakeData(){
 
-        photoList.add(CuriosityPhoto("07:11:18","kek"))
-        photoList.add(CuriosityPhoto("07:11:18","kek"))
-        photoList.add(CuriosityPhoto("07:11:18","kek"))
-        photoList.add(CuriosityPhoto("07:11:18","kek"))
-        photoList.add(CuriosityPhoto("07:11:18","kek"))
-        photoList.add(CuriosityPhoto("07:11:18","kek"))
-        photoList.add(CuriosityPhoto("07:11:18","kek"))
+
     }
 
     override fun showItem(items: ArrayList<CuriosityPhoto>) {
