@@ -95,5 +95,9 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
         )
     }
 
+    fun itemWasClicked(position:Int){
+        viewState.navigateToDetailView(DetailActivity::class.java,position)
+    }
+
 
 }

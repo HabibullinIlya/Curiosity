@@ -1,4 +1,4 @@
-package xyz.ilyaxabibullin.curiosity
+package xyz.ilyaxabibullin.curiosity.utils
 
 import android.support.annotation.LayoutRes
 import android.view.LayoutInflater
