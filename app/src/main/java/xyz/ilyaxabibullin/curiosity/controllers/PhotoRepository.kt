@@ -19,8 +19,8 @@ object PhotoRepository {
     private lateinit var manifest: Manifest
 
 
-    fun loadPhotos(date:String):Observable<Photos>{
-        return App.nasaApi.getPhotos(date,App.apiKey)
+    fun loadPhotos(date:String,page:Int):Observable<Photos>{
+        return App.nasaApi.getPhotos(date,key = App.apiKey,page = page)
     }
 
 

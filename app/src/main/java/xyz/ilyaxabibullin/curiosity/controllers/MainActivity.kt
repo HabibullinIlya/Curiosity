@@ -51,9 +51,6 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
 
         recyclerView.adapter = this.listPhotoAdapter
 
-
-
-
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -104,11 +101,15 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
             }
 
         }
+        photoList.sortByDescending {selector(it)}
+
         recyclerView.adapter = listPhotoAdapter
         recyclerView.scrollToPosition(lastPosition)
 
 
     }
+    fun selector(p :CuriosityPhoto):Int = p.id
+
 
     override fun navigateToDetailView(cls: Class<*>,position:Int) {
         val intent = Intent(this,cls)

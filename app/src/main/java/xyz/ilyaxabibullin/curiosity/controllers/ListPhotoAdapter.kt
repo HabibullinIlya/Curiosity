@@ -38,6 +38,7 @@ class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>):
     override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
         holder.date.text = photoList[position].earthDate
         val link = photoList[position].imgSrc
+        holder.id.text = photoList[position].id.toString()
         Glide
             .with(holder.itemView.context)
             .load(link)
@@ -55,6 +56,7 @@ class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>):
 
         val date: TextView = itemView.findViewById(R.id.name_item)
         val photo: ImageView = itemView.findViewById(R.id.item_photo)
+        val id: TextView = itemView.findViewById(R.id.id_photo_view)
 
 
     }

@@ -9,11 +9,13 @@ import xyz.ilyaxabibullin.curiosity.entitys.Photos
 
 interface NASAApi {
     @GET("/mars-photos/api/v1/rovers/curiosity/photos?")
-    fun getPhotos(@Query("earth_date")date:String,
-                  //@Query("page")page:Int,
-                  @Query("api_key") key:String):Observable<Photos>
+    fun getPhotos(
+        @Query("earth_date") date: String,
+        @Query("page") page: Int = 1,
+        @Query("api_key") key: String
+    ): Observable<Photos>
 
 
     @GET("/mars-photos/api/v1/manifests/curiosity?")
-    fun getManifest(@Query("api_key")key:String):Observable<ManifestResponce>
+    fun getManifest(@Query("api_key") key: String): Observable<ManifestResponce>
 }
