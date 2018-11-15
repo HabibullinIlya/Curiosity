@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Toast
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
+import kotlinx.android.synthetic.main.activity_main.*
 import xyz.ilyaxabibullin.curiosity.R
 import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
 import xyz.ilyaxabibullin.curiosity.utils.OnItemClickListener
@@ -36,6 +37,7 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
+        main_progress.visibility = View.VISIBLE
         presenter.activityWasStarted()
 
 
@@ -69,6 +71,7 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
                         isLoading = true
                         Log.d(TAG, "in second if")
                         lastPosition = firstVisibleItemPosition
+                        listPhotoAdapter.addLoadingFooter()
                         presenter.activityWasScrolled()
                     }
 
@@ -85,30 +88,29 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
 
 
 
+
     }
 
 
     override fun showItem(items: ArrayList<CuriosityPhoto>) {
         isLoading = false
 
-        photoList.addAll(items)
-        Log.d(TAG, "колличество итемов загруженных = ${items.size}")
-        Log.d(TAG, "колличество итемов всего = ${photoList.size}")
-        listPhotoAdapter = ListPhotoAdapter(photoList)
-        listPhotoAdapter.clickListener = object: OnItemClickListener{
-            override fun onItemClick(position: Int, view: View) {
-                presenter.itemWasClicked(position)
-            }
+        //photoList.addAll(items)
 
-        }
-        photoList.sortByDescending {selector(it)}
+        //listPhotoAdapter = ListPhotoAdapter(photoList)
 
-        recyclerView.adapter = listPhotoAdapter
-        recyclerView.scrollToPosition(lastPosition)
+        println("showItem()")
+        main_progress.visibility = View.GONE
+
+        listPhotoAdapter.addAll(items)
+        listPhotoAdapter.removeLoadingFooter()
+        //recyclerView.adapter = listPhotoAdapter
+        //recyclerView.scrollToPosition(lastPosition)
 
 
     }
-    fun selector(p :CuriosityPhoto):Int = p.id
+
+
 
 
     override fun navigateToDetailView(cls: Class<*>,position:Int) {
