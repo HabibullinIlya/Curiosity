@@ -8,11 +8,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.bumptech.glide.Glide
@@ -28,14 +24,7 @@ class DetailActivity : MvpAppCompatActivity() {
     lateinit var photoList: ArrayList<CuriosityPhoto>
     var position = -1
 
-    /**
-     * The [android.support.v4.view.PagerAdapter] that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * [android.support.v4.app.FragmentStatePagerAdapter].
-     */
+
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,6 +100,12 @@ class DetailActivity : MvpAppCompatActivity() {
         var url = ""
         var position = 0
 
+        private lateinit var scaleGestureDetector: ScaleGestureDetector
+        private lateinit var imageView: ImageView
+        private var scaleFactor = 1.5F
+
+
+
 
         override fun setArguments(args: Bundle?) {
             super.setArguments(args)
@@ -127,31 +122,42 @@ class DetailActivity : MvpAppCompatActivity() {
         ): View? {
             val rootView = inflater.inflate(R.layout.fragment_detail, container, false)
 
-            val imageView: ImageView = rootView.findViewById(R.id.detail_image)
+
+            imageView = rootView.findViewById(R.id.detail_image)
             Glide
                 .with(activity!!)
                 .load(url)
-                .thumbnail(0.1f)
                 .into(imageView)
+            scaleGestureDetector = ScaleGestureDetector(activity!!,ScaleListener())
+
+            rootView.setOnTouchListener { v, event ->
+                scaleGestureDetector.onTouchEvent(event)
+                true }
 
             return rootView
         }
 
+        inner class ScaleListener:ScaleGestureDetector.SimpleOnScaleGestureListener(){
+            override fun onScale(detector: ScaleGestureDetector?): Boolean {
+                scaleFactor *= scaleGestureDetector.scaleFactor
+                scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 10.0f))
+                imageView.scaleX = scaleFactor
+                imageView.scaleY = scaleFactor
+                return true
+            }
+        }
+
+
+
         companion object {
-            /**
-             * The fragment argument representing the section number for this
-             * fragment.
-             */
+
             private val ARG_SECTION_NUMBER = "section_number"
             private val ARG_IMG_TITLE = "image_title"
             private val ARG_IMG_URL = "image_url"
 
 
 
-            /**
-             * Returns a new instance of this fragment for the given section
-             * number.
-             */
+
             fun newInstance(sectionNumber: Int, name: String, url: String): PlaceholderFragment {
                 val fragment = PlaceholderFragment()
                 val args = Bundle()

@@ -81,7 +81,8 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
         })
         listPhotoAdapter.clickListener = object:OnItemClickListener{
             override fun onItemClick(position: Int, view: View) {
-                Toast.makeText(this@MainActivity,"$position",Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this@MainActivity,"$position",Toast.LENGTH_SHORT).show()
+                presenter.itemWasClicked(position)
             }
 
         }
