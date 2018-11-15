@@ -1,7 +1,6 @@
 package xyz.ilyaxabibullin.curiosity.controllers
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -35,36 +34,12 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
                     .subscribe {
                         manifest = it.manifest
                         day = manifest!!.photos.size - 1
-                        Log.d(TAG, "${manifest!!.photos[day].totalPhotos} total photos tipa")
-
 
                         alternateLoadPhoto()
 
-                        /*PhotoRepository.loadPhotos(
-                            it.manifest
-                                .photos[it.manifest.photos.size - 1].earthDate
-                        )
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeOn(Schedulers.io())
-                            .subscribe { it ->
-
-                                viewState.showItem(it.photos)
-                            }*/
                     }
             )
         } else {
-            /*compositeDisposable.add(
-                PhotoRepository.loadPhotos(
-                    manifest!!
-                        .photos[manifest!!.photos.size - 1].earthDate
-                )
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe { it ->
-                        viewState.showItem(it.photos)
-                    }
-            )*/
-
             alternateLoadPhoto()
 
         }
@@ -73,26 +48,8 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
     }
 
     fun activityWasScrolled() {
-
         alternateLoadPhoto()
-        /*Log.d(TAG, "presenter:")
-        day -= 1
-        println(day)
-        println(
-            manifest!!
-                .photos[day].earthDate
-        )
-        compositeDisposable.add(
-            PhotoRepository.loadPhotos(
-                manifest!!
-                    .photos[day].earthDate
-            )
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe { it ->
-                    viewState.showItem(it.photos)
-                }
-        )*/
+
     }
 
     fun itemWasClicked(position: Int) {
@@ -111,20 +68,14 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
 
-                println("полученнные по сети")
-                it.photos.forEach { p ->
-                    println(p.id)
-                }
-
-                println("before   a = $a  b = $b   ${photos.size}")
-                //photos.addAll(it.photos)
                 for (i in a until it.photos.size) {
                     photos.add(it.photos[i])
                 }
                 when {
                     photos.size < count -> {
-                        println("when < 20   a = $a  b = $b   ${photos.size}")
-                        if ((manifest!!.photos[day].totalPhotos > 25)&&(!itLastPage(manifest!!.photos[day].totalPhotos,page))) {
+                        val total = manifest!!.photos[day].totalPhotos
+
+                        if ((total > 25) && (!itLastPage(total, page))) {
                             page++
                             a = 0
                             b = count
@@ -137,7 +88,7 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
                         alternateLoadPhoto()
                     }
                     photos.size > count -> {
-                        println("when > 20 a = $a  b = $b   ${photos.size}")
+
                         var tempPhotos = ArrayList<CuriosityPhoto>()
 
                         for (i in a until b) {
@@ -148,7 +99,7 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
 
 
                         photos = tempPhotos
-                        println("отправленные на UI  ${photos.size}")
+
                         photos.forEach { p ->
                             println(p.id)
                         }
@@ -157,11 +108,7 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
 
                     }
                     else -> {
-                        println("отправленные на UI")
-                        println(" else  = $a  b = $b   ${photos.size}")
-                        photos.forEach { p ->
-                            println(p.id)
-                        }
+
                         viewState.showItem(photos)
 
                     }
@@ -169,9 +116,8 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
             }
     }
 
-    fun itLastPage(total: Int, page: Int): Boolean {
-        var pageNum = 0
-        pageNum = if (total % count == 0) {
+    private fun itLastPage(total: Int, page: Int): Boolean {
+        val pageNum = if (total % count == 0) {
             total / count
         } else {
             total / count + 1
