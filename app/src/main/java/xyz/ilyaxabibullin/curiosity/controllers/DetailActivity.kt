@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import android.widget.TextView
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.bumptech.glide.Glide
 
@@ -129,6 +130,8 @@ class DetailActivity : MvpAppCompatActivity() {
                 .load(url)
                 .into(imageView)
             scaleGestureDetector = ScaleGestureDetector(activity!!,ScaleListener())
+
+
 
             rootView.setOnTouchListener { v, event ->
                 scaleGestureDetector.onTouchEvent(event)
