@@ -7,8 +7,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.HttpException
+import xyz.ilyaxabibullin.curiosity.App
 import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
 import xyz.ilyaxabibullin.curiosity.entitys.Manifest
+import xyz.ilyaxabibullin.curiosity.room.entitys.Photo
 import java.net.UnknownHostException
 
 
@@ -21,35 +23,46 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
 
     private val count = 20
 
-
     private var manifest: Manifest? = null
+
+    private var roomManifestList: ArrayList<xyz.ilyaxabibullin.curiosity.room.entitys.RoomManifest>? = null
     private var day = -1
 
 
     @SuppressLint("CheckResult")
     fun activityWasStarted() {
-
-        if (manifest == null) {
-            PhotoRepository.loadManifest()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    manifest = it.manifest
-                    day = manifest!!.photos.size - 1
-                    loadPhoto()
-                }, { t: Throwable ->
-                    viewState.hideMainProgress()
-                    this.unsuccessfulResult(t)
-                })
+        println("on activityWasStarted")
+        roomManifestList = loadManifestFromDb()
+        if (roomManifestList!!.size == 0) {
+            println("if room man. size = 0")
+            this.loadManifestFromNet()
         } else {
-            loadPhoto()
-
+            println("else it mean that manifest there is in db")
+            //this.loadPhoto()
         }
+
+    }
+
+    @SuppressLint("CheckResult")
+    private fun loadManifestFromNet() {
+        PhotoRepository.loadManifest()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                manifest = it.manifest
+                day = manifest!!.photos.size - 1
+                this.saveManifestToDB(it.manifest)
+                loadPhoto()
+
+            }, { t: Throwable ->
+                viewState.hideMainProgress()
+                this.unsuccessfulResult(t)
+            })
     }
 
 
     fun activityWasScrolled() {
-        loadPhoto()
+        loadPhotoFromNet()
 
     }
 
@@ -62,9 +75,58 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
 
     private var photos = ArrayList<CuriosityPhoto>()
 
+    private fun loadPhoto() {
+        var photosDb = ArrayList<Photo>()
+
+
+        var end = false
+        while (!end) {
+            var it = this.loadPhotoFromDb()
+            for (i in a until it.size) {
+                photosDb.add(it[i])
+            }
+            when {
+                it.size < count -> {
+                    val total = manifest!!.photos[day].totalPhotos
+
+                    if ((total > 25) && (!itLastPage(total, page))) {
+                        page++
+                        a = 0
+                        b = count
+                    } else {
+                        a = 0
+                        b = count
+                        page = 1
+                        day--
+                    }
+                }
+                it.size > count -> {
+
+                }
+
+            }
+
+        }
+
+        for (rp in photosDb) {
+            var tempPhoto = CuriosityPhoto()
+            tempPhoto.imgSrc = rp.imgSrc
+            tempPhoto.earthDate = rp.earthDate ?: "nevermore)"
+            tempPhoto.id = rp.id
+            photos.add(tempPhoto)
+        }
+
+    }
+
+    private fun loadPhotoFromDb(): ArrayList<Photo> {
+        return App.db.getRoomDao().findeByDateAndPage(manifest!!.photos[day].earthDate, page) as ArrayList<Photo>
+    }
+
     @SuppressLint("CheckResult")
-    fun loadPhoto() {
-        PhotoRepository.loadPhotos(manifest!!.photos[day].earthDate, page = page)
+    fun loadPhotoFromNet() {
+        var stringDate = manifest!!.photos[day].earthDate
+
+        PhotoRepository.loadPhotos(stringDate, page = page)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -85,7 +147,7 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
                             page = 1
                             day--
                         }
-                        loadPhoto()
+                        loadPhotoFromNet()
                     }
                     photos.size > count -> {
 
@@ -123,15 +185,12 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
         t.printStackTrace()
         if (t is HttpException) {
             viewState.showError(t.code().toString())
-        }
-        else if( t is UnknownHostException){
+        } else if (t is UnknownHostException) {
             viewState.showError("check your internet connection")
 
-        }else{
+        } else {
             viewState.showError("unknown error")
         }
-
-
 
 
     }
@@ -145,6 +204,15 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
         }
         return pageNum == page
 
+    }
+
+    private fun saveManifestToDB(manifest: Manifest) {
+
+
+    }
+
+    private fun loadManifestFromDb(): ArrayList<xyz.ilyaxabibullin.curiosity.room.entitys.RoomManifest> {
+        return App.db.getRoomDao().getAllManifests() as ArrayList<xyz.ilyaxabibullin.curiosity.room.entitys.RoomManifest>
     }
 
 
