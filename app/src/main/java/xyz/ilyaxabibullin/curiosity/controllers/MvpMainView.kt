@@ -7,6 +7,11 @@ import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
 interface MvpMainView: MvpView {
     fun showItem(items: ArrayList<CuriosityPhoto>)
 
-
     fun navigateToDetailView(cls: Class<*>,position: Int)
+
+    fun showError(text: String)
+
+    fun hideMainProgress()
+
+    fun hideItemProgress()
 }

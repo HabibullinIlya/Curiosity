@@ -96,23 +96,16 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
     override fun showItem(items: ArrayList<CuriosityPhoto>) {
         isLoading = false
 
-        //photoList.addAll(items)
-
-        //listPhotoAdapter = ListPhotoAdapter(photoList)
 
         println("showItem()")
         main_progress.visibility = View.GONE
 
         listPhotoAdapter.addAll(items)
         listPhotoAdapter.removeLoadingFooter()
-        //recyclerView.adapter = listPhotoAdapter
-        //recyclerView.scrollToPosition(lastPosition)
+
 
 
     }
-
-
-
 
     override fun navigateToDetailView(cls: Class<*>,position:Int) {
         val intent = Intent(this,cls)
@@ -121,5 +114,15 @@ class MainActivity : MvpAppCompatActivity(), MvpMainView {
         startActivity(intent)
     }
 
+    override fun showError(text: String) {
+        isLoading = false
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+    override fun hideMainProgress(){
+        main_progress.visibility = View.GONE
+    }
 
+    override fun hideItemProgress() {
+        listPhotoAdapter.removeLoadingFooter()
+    }
 }

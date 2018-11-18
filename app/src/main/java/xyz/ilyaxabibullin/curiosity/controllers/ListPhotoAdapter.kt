@@ -27,7 +27,6 @@ class ListPhotoAdapter(var photoList: ArrayList<CuriosityPhoto>) :
     companion object {
         private const val ITEM = 0
         private const val LOAD = 1
-
     }
 
 

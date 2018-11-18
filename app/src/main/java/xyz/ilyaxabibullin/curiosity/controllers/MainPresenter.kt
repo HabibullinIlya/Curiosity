@@ -6,8 +6,10 @@ import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
 import xyz.ilyaxabibullin.curiosity.entitys.CuriosityPhoto
 import xyz.ilyaxabibullin.curiosity.entitys.Manifest
+import java.net.UnknownHostException
 
 
 @InjectViewState
@@ -28,27 +30,26 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
     fun activityWasStarted() {
 
         if (manifest == null) {
-            compositeDisposable.add(
-                PhotoRepository.loadManifest()
-                    .subscribeOn(Schedulers.io())
-                    .subscribe {
-                        manifest = it.manifest
-                        day = manifest!!.photos.size - 1
-
-                        alternateLoadPhoto()
-
-                    }
-            )
+            PhotoRepository.loadManifest()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    manifest = it.manifest
+                    day = manifest!!.photos.size - 1
+                    loadPhoto()
+                }, { t: Throwable ->
+                    viewState.hideMainProgress()
+                    this.unsuccessfulResult(t)
+                })
         } else {
-            alternateLoadPhoto()
+            loadPhoto()
 
         }
-
-
     }
 
+
     fun activityWasScrolled() {
-        alternateLoadPhoto()
+        loadPhoto()
 
     }
 
@@ -62,12 +63,11 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
     private var photos = ArrayList<CuriosityPhoto>()
 
     @SuppressLint("CheckResult")
-    fun alternateLoadPhoto() {
+    fun loadPhoto() {
         PhotoRepository.loadPhotos(manifest!!.photos[day].earthDate, page = page)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-
+            .subscribe({
                 for (i in a until it.photos.size) {
                     photos.add(it.photos[i])
                 }
@@ -85,7 +85,7 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
                             page = 1
                             day--
                         }
-                        alternateLoadPhoto()
+                        loadPhoto()
                     }
                     photos.size > count -> {
 
@@ -113,9 +113,30 @@ class MainPresenter : MvpPresenter<MvpMainView>() {
 
                     }
                 }
-            }
+            }, { t: Throwable ->
+                viewState.hideItemProgress()
+                this.unsuccessfulResult(t)
+            })
     }
 
+    private fun unsuccessfulResult(t: Throwable) {
+        t.printStackTrace()
+        if (t is HttpException) {
+            viewState.showError(t.code().toString())
+        }
+        else if( t is UnknownHostException){
+            viewState.showError("check your internet connection")
+
+        }else{
+            viewState.showError("unknown error")
+        }
+
+
+
+
+    }
+
+    //последняя страница за день
     private fun itLastPage(total: Int, page: Int): Boolean {
         val pageNum = if (total % count == 0) {
             total / count
