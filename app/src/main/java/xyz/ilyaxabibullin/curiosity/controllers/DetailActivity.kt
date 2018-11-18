@@ -1,18 +1,22 @@
 package xyz.ilyaxabibullin.curiosity.controllers
 
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
 
+import android.graphics.Bitmap
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.os.Bundle
+
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
-import android.widget.TextView
+
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.bumptech.glide.Glide
+
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition
+import com.github.chrisbanes.photoview.PhotoView
 
 import kotlinx.android.synthetic.main.activity_detail.*
 import xyz.ilyaxabibullin.curiosity.R
@@ -33,8 +37,7 @@ class DetailActivity : MvpAppCompatActivity() {
         setContentView(R.layout.activity_detail)
 
         setSupportActionBar(toolbar)
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
+
         photoList = intent.getParcelableArrayListExtra("photos")
         position = intent.getIntExtra("position",-1)
 
@@ -53,15 +56,13 @@ class DetailActivity : MvpAppCompatActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
+
         menuInflater.inflate(R.menu.menu_detail, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         val id = item.itemId
 
         if (id == R.id.action_settings) {
@@ -72,10 +73,7 @@ class DetailActivity : MvpAppCompatActivity() {
     }
 
 
-    /**
-     * A [FragmentPagerAdapter] that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
+
     inner class SectionsPagerAdapter(fm: FragmentManager, photoList: ArrayList<CuriosityPhoto>) : FragmentPagerAdapter(fm) {
 
         override fun getItem(position: Int): Fragment {
@@ -92,21 +90,15 @@ class DetailActivity : MvpAppCompatActivity() {
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
+
     class PlaceholderFragment : Fragment() {
 
         var name = ""
         var url = ""
         var position = 0
 
-        private lateinit var scaleGestureDetector: ScaleGestureDetector
+
         private lateinit var imageView: ImageView
-        private var scaleFactor = 1.5F
-
-
-
 
         override fun setArguments(args: Bundle?) {
             super.setArguments(args)
@@ -115,8 +107,6 @@ class DetailActivity : MvpAppCompatActivity() {
             this.url = args.getString(ARG_IMG_URL)!!
         }
 
-
-
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
@@ -124,42 +114,26 @@ class DetailActivity : MvpAppCompatActivity() {
             val rootView = inflater.inflate(R.layout.fragment_detail, container, false)
 
 
-            imageView = rootView.findViewById(R.id.detail_image)
+            imageView = rootView.findViewById(R.id.detail_image) as PhotoView
             Glide
                 .with(activity!!)
+                .asBitmap()
                 .load(url)
-                .into(imageView)
-            scaleGestureDetector = ScaleGestureDetector(activity!!,ScaleListener())
+                .into(object:SimpleTarget<Bitmap>(){
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        startPostponedEnterTransition();
+                        imageView.setImageBitmap(resource);
+                    }
 
-
-
-            rootView.setOnTouchListener { v, event ->
-                scaleGestureDetector.onTouchEvent(event)
-                true }
-
+                })
             return rootView
         }
 
-        inner class ScaleListener:ScaleGestureDetector.SimpleOnScaleGestureListener(){
-            override fun onScale(detector: ScaleGestureDetector?): Boolean {
-                scaleFactor *= scaleGestureDetector.scaleFactor
-                scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 10.0f))
-                imageView.scaleX = scaleFactor
-                imageView.scaleY = scaleFactor
-                return true
-            }
-        }
-
-
-
         companion object {
 
-            private val ARG_SECTION_NUMBER = "section_number"
-            private val ARG_IMG_TITLE = "image_title"
-            private val ARG_IMG_URL = "image_url"
-
-
-
+            private const val ARG_SECTION_NUMBER = "section_number"
+            private const val ARG_IMG_TITLE = "image_title"
+            private const val ARG_IMG_URL = "image_url"
 
             fun newInstance(sectionNumber: Int, name: String, url: String): PlaceholderFragment {
                 val fragment = PlaceholderFragment()
